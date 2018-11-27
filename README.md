@@ -21,4 +21,4 @@ firefox ./dist/index.html
 To enable hot reloading of the demo application:
 ```
 npm run start
-```# adaguc-webmapjs-sld
+```
