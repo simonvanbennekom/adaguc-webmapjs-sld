@@ -6,6 +6,7 @@ import App from "./App.jsx";
 require('./img/adaguc-logo-favicon-16x16.png');
 require('./img/adaguc-logo-favicon-32x32.png');
 
+
 $(function() {
 
   let element = document.getElementById('webmap');
@@ -15,7 +16,6 @@ $(function() {
   /* Set size according to window w/h */
   // webMapJS.setSize(window.innerWidth,window.innerHeight - 300);
   
-
 
   function setSize(){
     let element = document.getElementById('webmap_container');
@@ -41,7 +41,7 @@ $(function() {
     enabled:true
   });
 
-  var radarlayer = new WMJSLayer({
+  radarlayer = new WMJSLayer({
     service:'http://bhw512.knmi.nl/~bennekom/adaguc.testdata.cgi?',
     name:'radar'
   });
