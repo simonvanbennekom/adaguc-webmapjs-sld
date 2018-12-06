@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, ButtonGroup, Alert } from 'reactstrap';
+import { Button, InputGroup, InputGroupAddon, Input, Alert } from 'reactstrap';
 import brace from 'brace';
 import 'brace/mode/xml';
 import 'brace/theme/xcode';
@@ -17,11 +17,13 @@ export default class SLDEditor extends Component {
             alertColor: "",
             alertMsg: "",
             SLD:"",
-            sldURL:""
+            sldURL:"",
+            fileName: "",
         };
 
         this.setAlert = this.setAlert.bind(this);
         this.handleDismiss = this.handleDismiss.bind(this);
+        this.handleFileNameChange = this.handleFileNameChange.bind(this);
         this.onChange = this.onChange.bind(this);
         
         this.postSLDBtnClicked = this.postSLDBtnClicked.bind(this);
@@ -29,10 +31,12 @@ export default class SLDEditor extends Component {
     }
 
     postSLDBtnClicked(){
-        // Post nu met axios naar je Python script
-        var sldString = this.state.SLD; 
-
-        axios.post('http://0.0.0.0:5000/processSLD', sldString, {
+        this.setState({sldURL: null });
+        
+        var api = 'http://0.0.0.0:5000/processSLD'
+        api = this.state.fileName ? api += '/' + this.state.fileName : api;
+        
+        axios.post(api, this.state.SLD, {
             headers: { 'Content-Type': 'text/plain' }
         })
         .then((response) => {
@@ -41,7 +45,7 @@ export default class SLDEditor extends Component {
             if(responseData.status === 'success'){
                 try{
                     this.setAlert('success', responseData.message);
-                    this.setState({sldURL:responseData.data.url})
+                    this.setState({sldURL:responseData.data.url});
                     radarlayer.setSLDURL(responseData.data.url);
                     radarlayer.draw();
                   }catch(e){
@@ -66,7 +70,11 @@ export default class SLDEditor extends Component {
     }
 
     handleDismiss() {
-        this.setState({ showAlert: false });
+        this.setState({showAlert: false });
+    }
+
+    handleFileNameChange(event){
+        this.setState({fileName: event.target.value});
     }
 
     loadSLDTemplateBtnClicked () {
@@ -78,23 +86,27 @@ export default class SLDEditor extends Component {
     }
 
     render(){
-        const { alertColor, alertMsg, SLD } = this.state;
+        const { alertColor, alertMsg, SLD, fileName } = this.state;
         return (
         <div>
-            <ButtonGroup className="w-100 mb-2">
-                <Button color="success" className="w-100 btn-lg font-weight-bold rounded-0" onClick={this.postSLDBtnClicked}>Post SLD</Button>
-                <Button color="warning" className="w-100 btn-lg font-weight-bold rounded-0" onClick={this.loadSLDTemplateBtnClicked}>Get SLD template</Button>
-            </ButtonGroup>
-            { this.state.showAlert && <Alert color={alertColor} toggle={this.handleDismiss}>{alertMsg}</Alert> }
-            { this.state.sldURL && <a href={this.state.sldURL} target="_blank">Your SLD file: {this.state.sldURL}</a> }
+            <InputGroup className="w-100 mb-2">
+                <Input placeholder="Enter file name" value={fileName} onChange={this.handleFileNameChange} />
+                <InputGroupAddon addonType="prepend">
+                    <Button color="success" className="w-100 font-weight-bold rounded-0" onClick={this.postSLDBtnClicked}>Post SLD</Button>
+                </InputGroupAddon>
+                <InputGroupAddon addonType="append">
+                    <Button color="warning" className="w-100 font-weight-bold rounded-0" onClick={this.loadSLDTemplateBtnClicked}>Get SLD template</Button>
+                </InputGroupAddon>
+            </InputGroup>
+            { this.state.showAlert && <Alert color={alertColor} toggle={this.handleDismiss}>{alertMsg} { this.state.sldURL && <a href={this.state.sldURL} target="_blank" className="alert-link">{this.state.sldURL}</a> }</Alert> }
             <AceEditor 
-            ref="aceEditor"
             mode="xml"
             theme="xcode"
             width="auto"
             value={SLD}
             onChange={this.onChange}
             name="sldEditor"
+            autoScrollEditorIntoView="true"
             editorProps={{$blockScrolling: Infinity}}
             />
         </div>
