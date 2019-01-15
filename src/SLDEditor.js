@@ -56,8 +56,8 @@ export default class SLDEditor extends Component {
             }   
         })
         .catch((error) => {
-            console.error(error);
-            this.setAlert('danger', 'Unknown Error with status code: '. error.response.status);
+            console.log(error);
+            this.setAlert('danger', 'Unknown Error with status code: ' + error);
         });
     }
 
